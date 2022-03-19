@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<!-- saved from url=(0078)https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html -->
+<html lang="zh"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="generator" content="Hexo 3.8.0">
+  
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000">
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top">
+  
+  
+  <title>基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 | Frank's 技术世界</title>
+  <meta name="description" content="前言 在 SpringBoot 开发过程中，当我们在 Debug 我们的工程时，随便修改一段代码逻辑、修改接口路由、新增一个工具类等等情况下，都需要我们重新启动工程。反复的修改逻辑，反复的重启，这是相当痛苦的过程。当工程越来越大的时候，效率将变得特别低下，大部分的时间就是在不断的重启项目、编译包、部署包。 近期在研究基于 SpringBoot + IDEA 远程调试功能，可以通过 remote-d">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试">
+<meta property="og:url" content="http://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html">
+<meta property="og:site_name" content="Frank&#39;s 技术世界">
+<meta property="og:description" content="前言 在 SpringBoot 开发过程中，当我们在 Debug 我们的工程时，随便修改一段代码逻辑、修改接口路由、新增一个工具类等等情况下，都需要我们重新启动工程。反复的修改逻辑，反复的重启，这是相当痛苦的过程。当工程越来越大的时候，效率将变得特别低下，大部分的时间就是在不断的重启项目、编译包、部署包。 近期在研究基于 SpringBoot + IDEA 远程调试功能，可以通过 remote-d">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.frankfeekr.cn/assets/1563194200137.png">
+<meta property="og:image" content="http://www.frankfeekr.cn/assets/1563194304996.png">
+<meta property="og:image" content="http://www.frankfeekr.cn/assets/1563194804383.png">
+<meta property="og:image" content="http://www.frankfeekr.cn/assets/1563194936470.png">
+<meta property="og:image" content="http://www.frankfeekr.cn/assets/1563195324070.png">
+<meta property="og:image" content="http://www.frankfeekr.cn/assets/1563195374877.png">
+<meta property="og:image" content="http://www.frankfeekr.cn/assets/1563195929214.png">
+<meta property="og:image" content="http://www.frankfeekr.cn/assets/1563195961612.png">
+<meta property="og:image" content="http://www.frankfeekr.cn/assets/1563196093481.png">
+<meta property="og:image" content="http://www.frankfeekr.cn/assets/1563196236960.png">
+<meta property="og:image" content="http://www.frankfeekr.cn/assets/1563284703729.png">
+<meta property="og:image" content="http://www.frankfeekr.cn/assets/1563285310324.png">
+<meta property="og:image" content="http://www.frankfeekr.cn/assets/1563285346373.png">
+<meta property="og:image" content="http://www.frankfeekr.cn/assets/1563285389975.png">
+<meta property="og:image" content="http://www.frankfeekr.cn/assets/1563196516607.png">
+<meta property="og:image" content="http://www.frankfeekr.cn/assets/1563196625339.png">
+<meta property="og:image" content="http://www.frankfeekr.cn/assets/1563196598708.png">
+<meta property="og:image" content="http://www.frankfeekr.cn/assets/1563196770320.png">
+<meta property="og:image" content="http://www.frankfeekr.cn/assets/1563197215671.png">
+<meta property="og:image" content="http://www.frankfeekr.cn/assets/1563286046514.png">
+<meta property="og:image" content="http://www.frankfeekr.cn/assets/1563239243081.png">
+<meta property="og:image" content="http://www.frankfeekr.cn/assets/1563239986427.png">
+<meta property="og:image" content="http://www.frankfeekr.cn/assets/1563240819085.png">
+<meta property="og:image" content="http://www.frankfeekr.cn/assets/1563240728219.png">
+<meta property="og:image" content="http://www.frankfeekr.cn/assets/1563239798406.png">
+<meta property="og:image" content="http://www.frankfeekr.cn/assets/1563240185570.png">
+<meta property="og:image" content="http://www.frankfeekr.cn/assets/1563240386725.png">
+<meta property="og:image" content="http://www.frankfeekr.cn/assets/1563241396567.png">
+<meta property="og:updated_time" content="2021-10-23T14:22:52.650Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试">
+<meta name="twitter:description" content="前言 在 SpringBoot 开发过程中，当我们在 Debug 我们的工程时，随便修改一段代码逻辑、修改接口路由、新增一个工具类等等情况下，都需要我们重新启动工程。反复的修改逻辑，反复的重启，这是相当痛苦的过程。当工程越来越大的时候，效率将变得特别低下，大部分的时间就是在不断的重启项目、编译包、部署包。 近期在研究基于 SpringBoot + IDEA 远程调试功能，可以通过 remote-d">
+<meta name="twitter:image" content="http://www.frankfeekr.cn/assets/1563194200137.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html">
+  
+    <link rel="alternate" href="https://www.frankfeekr.cn/atom.xml" title="Frank&#39;s 技术世界" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="https://www.frankfeekr.cn/img/favicon.png" type="image/x-icon">
+  
+  <link rel="stylesheet" href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/style.css">
+  
+  
+  
+    <link href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/jquery.fancybox.min.css" rel="stylesheet">
+  
+  
+    <!-- <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.css"> -->
+    <link rel="stylesheet" href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/gitalk.css">
+  
+<style type="text/css" abt="234"></style><script type="text/javascript" defer="" src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/busuanzi" referrerpolicy="no-referrer-when-downgrade"></script><script>//console.log('a')
+</script><script>//remove baidu search ad
+var _countAA = 0
+function doBBBd(){}
+doBBBd()
+document.addEventListener('keyup', function(){_countAA-=10;doBBBd()}, false)
+document.addEventListener('click', function(){_countAA-=10;doBBBd()}, false)
+
+</script><style>hcfy-result.__hcfy__result__loaded__.__hcfy__result__both__{border: 1px dotted}</style></head>
+
+
+<body class="main-center theme-black" itemscope="" itemtype="http://schema.org/WebPage">
+
+  <header class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/frank-lam" target="_blank">
+          <img class="img-circle img-rotate" src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/avatar2.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">Frank</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">from zero to hero</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Hangzhou</small><br>
+        <!-- <small id="location" class="text-muted hidden-xs hidden-sm"> 潜伏在黎明之前，混迹于互联网江湖。</small><br> -->
+
+        <!-- <span class="article-read hidden-xs">
+            <i class="icon icon-eye-fill" aria-hidden="true"></i>
+            <span id="busuanzi_container_page_pv">
+            <span id="busuanzi_value_page_pv">0</span>
+          </span>
+        </span> -->
+
+        <!-- <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-location-arrow"></i> frank_lin@whu.edu.cn</small> -->
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索">
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope="" itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="https://www.frankfeekr.cn/">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="https://www.frankfeekr.cn/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="https://www.frankfeekr.cn/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-lintools">
+          <a href="https://www.frankfeekr.cn/lintools">
+            
+            <i class="icon icon-book-fill"></i>
+            
+            <span class="menu-title">在线导航</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-links">
+          <a href="https://www.frankfeekr.cn/tools">
+            
+            <i class="icon icon-shu"></i>
+            
+            <span class="menu-title">四次元ポケット</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-author">
+          <a href="https://www.frankfeekr.cn/author">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">作者</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/frank-lam" target="_blank" title="" data-toggle="tooltip" data-placement="top" data-original-title="Github"><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://weibo.com/Lam_Frank" target="_blank" title="" data-toggle="tooltip" data-placement="top" data-original-title="Weibo"><i class="icon icon-weibo"></i></a></li>
+        
+        <li><a href="https://www.zhihu.com/people/hifrank/" target="_blank" title="" data-toggle="tooltip" data-placement="top" data-original-title="Zhihu"><i class="icon icon-zhihu"></i></a></li>
+        
+        <li><a href="mailto:frank_lin@whu.edu.cn" target="_blank" title="" data-toggle="tooltip" data-placement="top" data-original-title="Email"><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    </nav>
+    <!-- <script type="text/javascript" src="//js.users.51.la/19985869.js"></script> -->
+    <script charset="utf-8" src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/UrlChangeTracker.js"></script><script src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/hm.js"></script><script>
+      var _hmt = _hmt || [];
+      (function() {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?9f90fd773669c197e7a4b7827da87a13";
+        var s = document.getElementsByTagName("script")[0]; 
+        s.parentNode.insertBefore(hm, s);
+      })();
+      </script>
+      
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope="" itemtype="http://schema.org/WPSideBar">
+  <div class="slimScrollDiv" style="position: relative; overflow: hidden; width: auto; height: 698px;"><div class="slimContent" style="overflow: hidden; width: auto; height: 698px;">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/qrcode.png" style="width:80%;margin-left:11%;"> <p style="text-align:center;">微信订阅号：全栈开发社区<br>fullstack tutorial developer</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="https://www.frankfeekr.cn/tags/Git/">Git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="https://www.frankfeekr.cn/tags/HTTP/">HTTP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="https://www.frankfeekr.cn/tags/IDEA/">IDEA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="https://www.frankfeekr.cn/tags/Linux/">Linux</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="https://www.frankfeekr.cn/tags/PHP/">PHP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="https://www.frankfeekr.cn/tags/influxdb/">influxdb</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="https://www.frankfeekr.cn/tags/skill-tree/">skill-tree</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="https://www.frankfeekr.cn/tags/ss/">ss</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="https://www.frankfeekr.cn/tags/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/">内网穿透</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="https://www.frankfeekr.cn/tags/%E5%89%8D%E7%AB%AF/">前端</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="https://www.frankfeekr.cn/tags/%E5%AD%A6%E4%B9%A0%E5%AE%9D%E5%85%B8/">学习宝典</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="https://www.frankfeekr.cn/tags/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/">开发工具</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="https://www.frankfeekr.cn/tags/%E6%8A%80%E6%9C%AF%E4%B8%96%E7%95%8C/">技术世界</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="https://www.frankfeekr.cn/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据库结构与算法</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="https://www.frankfeekr.cn/tags/%E6%9D%82%E6%96%87/">杂文</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="https://www.frankfeekr.cn/tags/%E6%A0%A1%E6%8B%9B/">校招</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="https://www.frankfeekr.cn/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget-body tagcloud">
+      <a href="https://www.frankfeekr.cn/tags/Git/" style="font-size: 13px;">Git</a> <a href="https://www.frankfeekr.cn/tags/HTTP/" style="font-size: 13px;">HTTP</a> <a href="https://www.frankfeekr.cn/tags/IDEA/" style="font-size: 13px;">IDEA</a> <a href="https://www.frankfeekr.cn/tags/Linux/" style="font-size: 13.5px;">Linux</a> <a href="https://www.frankfeekr.cn/tags/PHP/" style="font-size: 13px;">PHP</a> <a href="https://www.frankfeekr.cn/tags/influxdb/" style="font-size: 13px;">influxdb</a> <a href="https://www.frankfeekr.cn/tags/skill-tree/" style="font-size: 13px;">skill-tree</a> <a href="https://www.frankfeekr.cn/tags/ss/" style="font-size: 13px;">ss</a> <a href="https://www.frankfeekr.cn/tags/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/" style="font-size: 13px;">内网穿透</a> <a href="https://www.frankfeekr.cn/tags/%E5%89%8D%E7%AB%AF/" style="font-size: 13px;">前端</a> <a href="https://www.frankfeekr.cn/tags/%E5%AD%A6%E4%B9%A0%E5%AE%9D%E5%85%B8/" style="font-size: 13px;">学习宝典</a> <a href="https://www.frankfeekr.cn/tags/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/" style="font-size: 13.5px;">开发工具</a> <a href="https://www.frankfeekr.cn/tags/%E6%8A%80%E6%9C%AF%E4%B8%96%E7%95%8C/" style="font-size: 13.5px;">技术世界</a> <a href="https://www.frankfeekr.cn/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" style="font-size: 13px;">数据库结构与算法</a> <a href="https://www.frankfeekr.cn/tags/%E6%9D%82%E6%96%87/" style="font-size: 13.5px;">杂文</a> <a href="https://www.frankfeekr.cn/tags/%E6%A0%A1%E6%8B%9B/" style="font-size: 14px;">校招</a> <a href="https://www.frankfeekr.cn/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 13px;">深度学习</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="https://www.frankfeekr.cn/archives/2021/10/">十月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="https://www.frankfeekr.cn/archives/2021/09/">九月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="https://www.frankfeekr.cn/archives/2021/05/">五月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="https://www.frankfeekr.cn/archives/2021/03/">三月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="https://www.frankfeekr.cn/archives/2020/05/">五月 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="https://www.frankfeekr.cn/archives/2020/01/">一月 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="https://www.frankfeekr.cn/archives/2019/12/">十二月 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="https://www.frankfeekr.cn/archives/2019/09/">九月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="https://www.frankfeekr.cn/archives/2019/08/">八月 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="https://www.frankfeekr.cn/archives/2019/07/">七月 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="https://www.frankfeekr.cn/archives/2019/06/">六月 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="https://www.frankfeekr.cn/archives/2019/05/">五月 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="https://www.frankfeekr.cn/archives/2019/04/">四月 2019</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="https://www.frankfeekr.cn/archives/2019/01/">一月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="https://www.frankfeekr.cn/archives/2018/12/">十二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="https://www.frankfeekr.cn/archives/2018/10/">十月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="https://www.frankfeekr.cn/archives/2018/07/">七月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="https://www.frankfeekr.cn/archives/2018/06/">六月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="https://www.frankfeekr.cn/archives/2018/05/">五月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="https://www.frankfeekr.cn/archives/2018/04/">四月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="https://www.frankfeekr.cn/archives/2018/03/">三月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="https://www.frankfeekr.cn/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="https://www.frankfeekr.cn/archives/2017/11/">十一月 2017</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="https://www.frankfeekr.cn/2021/10/23/nvm-node-manager/" class="title">手把手教你，使用 nvm 管理不同版本的 node</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2021-10-23T15:16:19.000Z" itemprop="datePublished">2021-10-23</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="https://www.frankfeekr.cn/2021/10/23/spring-integration-shedlock/" class="title">Spring 快速集成分布式定时器</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2021-10-23T08:25:33.000Z" itemprop="datePublished">2021-10-23</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="https://www.frankfeekr.cn/2021/09/25/java-regular-group/" class="title">Java 正则表达式的命名捕获组</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2021-09-25T08:45:04.000Z" itemprop="datePublished">2021-09-25</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="https://www.frankfeekr.cn/2021/05/16/docs-tutorial/" class="title">开发者如何编写优雅的技术文档 —— 手把手教你编写极致的文档</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2021-05-16T14:05:37.000Z" itemprop="datePublished">2021-05-16</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="https://www.frankfeekr.cn/2021/03/28/github-speed-up/" class="title">一行命令实现 Github 国内镜像加速</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2021-03-28T13:47:11.000Z" itemprop="datePublished">2021-03-28</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div><div class="slimScrollBar" style="background: rgba(0, 0, 0, 0.15); width: 5px; position: absolute; top: 0px; opacity: 0.4; display: none; border-radius: 7px; z-index: 99; right: 1px; height: 246.063px;"></div><div class="slimScrollRail" style="width: 5px; height: 100%; position: absolute; top: 0px; display: none; border-radius: 7px; background: rgb(51, 51, 51); opacity: 0.2; z-index: 90; right: 1px;"></div></div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse in" id="collapseToc" itemscope="" itemtype="http://schema.org/WPSideBar" aria-expanded="true" style="">
+  <div class="slimScrollDiv" style="position: relative; overflow: hidden; width: auto; height: 698px;"><div class="slimContent" style="overflow: hidden; width: auto; height: 698px;">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html#%E9%85%8D%E7%BD%AE%E7%8E%AF%E5%A2%83%E8%AF%B4%E6%98%8E"><span class="toc-number">2.</span> <span class="toc-text">配置环境说明</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html#%E4%B8%80-%E8%BF%9C%E7%A8%8B%E8%B0%83%E8%AF%95%E9%85%8D%E7%BD%AE"><span class="toc-number">3.</span> <span class="toc-text">一、远程调试配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html#1-%E5%8F%B3%E4%B8%8A%E8%A7%92%E7%82%B9%E5%87%BB-edit-configurations-%E7%82%B9%E5%87%BB-%E5%8F%B7-%E5%88%9B%E5%BB%BA-remote-%E5%BA%94%E7%94%A8"><span class="toc-number">3.1.</span> <span class="toc-text">1. 右上角点击，Edit Configurations，点击 + 号，创建 Remote 应用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html#2-%E5%A1%AB%E5%86%99%E8%BF%9C%E7%A8%8B%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BF%A1%E6%81%AF"><span class="toc-number">3.2.</span> <span class="toc-text">2. 填写远程服务器信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html#3-%E5%A4%8D%E5%88%B6-command-line-arguments-for-remote-jvm-%E4%B8%8B%E7%9A%84%E5%91%BD%E4%BB%A4"><span class="toc-number">3.3.</span> <span class="toc-text">3. 复制 Command line arguments for remote JVM 下的命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html#4-%E5%90%AF%E5%8A%A8%E6%9C%8D%E5%8A%A1"><span class="toc-number">3.4.</span> <span class="toc-text">4. 启动服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html#5-%E8%BF%9C%E7%A8%8B%E8%B0%83%E8%AF%95"><span class="toc-number">3.5.</span> <span class="toc-text">5. 远程调试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html#%E4%BA%8C-%E7%83%AD%E9%83%A8%E7%BD%B2"><span class="toc-number">4.</span> <span class="toc-text">二、热部署</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html#1-idea-%E4%B8%AD%E5%AE%89%E8%A3%85-jrebel-%E6%8F%92%E4%BB%B6"><span class="toc-number">4.1.</span> <span class="toc-text">1. IDEA 中安装 Jrebel 插件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html#2-%E6%BF%80%E6%B4%BB-jrebel-%E6%8F%92%E4%BB%B6"><span class="toc-number">4.2.</span> <span class="toc-text">2. 激活 JRebel 插件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html#%E4%B8%80-%E5%AE%98%E6%96%B9-active-code-%E6%96%B9%E5%BC%8F%E6%BF%80%E6%B4%BB-%E5%8F%AA%E5%8F%AF%E4%BD%BF%E7%94%A810%E5%A4%A9"><span class="toc-number">4.2.1.</span> <span class="toc-text">（一）官方 Active Code 方式激活（只可使用10天）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html#%E4%BA%8C-%E6%B0%B8%E4%B9%85%E5%92%8C%E8%B0%90%E6%96%B9%E5%BC%8F"><span class="toc-number">4.2.2.</span> <span class="toc-text">（二）永久和谐方式</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html#3-%E8%AE%BE%E7%BD%AE-idea-%E4%B8%BA%E8%87%AA%E5%8A%A8%E7%BC%96%E8%AF%91"><span class="toc-number">4.3.</span> <span class="toc-text">3. 设置 IDEA 为自动编译</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html#4-debug-%E5%90%AF%E5%8A%A8%E6%9C%8D%E5%8A%A1"><span class="toc-number">4.4.</span> <span class="toc-text">4. Debug 启动服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html#5-%E6%9C%AC%E5%9C%B0%E7%83%AD%E9%83%A8%E7%BD%B2"><span class="toc-number">4.5.</span> <span class="toc-text">5. 本地热部署</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html#%E4%B8%89-%E8%BF%9C%E7%A8%8B%E7%83%AD%E9%83%A8%E7%BD%B2"><span class="toc-number">5.</span> <span class="toc-text">三、远程热部署</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html#1-%E9%85%8D%E7%BD%AE%E6%9C%8D%E5%8A%A1%E5%99%A8-jrebel"><span class="toc-number">5.1.</span> <span class="toc-text">1. 配置服务器 JRebel</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html#2-%E9%85%8D%E7%BD%AE%E6%9C%AC%E5%9C%B0-jrebel"><span class="toc-number">5.2.</span> <span class="toc-text">2. 配置本地 JRebel</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html#todo"><span class="toc-number">6.</span> <span class="toc-text">TODO</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-number">7.</span> <span class="toc-text">参考资料</span></a></li></ol>
+    </nav>
+  </div><div class="slimScrollBar" style="background: rgba(0, 0, 0, 0.15); width: 5px; position: absolute; top: 0px; opacity: 0.4; display: none; border-radius: 7px; z-index: 99; right: 1px; height: 607.486px;"></div><div class="slimScrollRail" style="width: 5px; height: 100%; position: absolute; top: 0px; display: none; border-radius: 7px; background: rgb(51, 51, 51); opacity: 0.2; z-index: 90; right: 1px;"></div></div>
+</aside>
+
+<main class="main has-sticky" role="main">
+  <div class="content">
+  <article id="post-springboot-idea-jrebel-hotswap" class="article article-type-post" itemscope="" itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/" class="article-date">
+	  <time datetime="2019-07-17T12:37:24.000Z" itemprop="datePublished">2019-07-17 20:37:24</time>
+	</a>
+</span>
+        
+        
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/#comments" class="article-comment-link">评论</a></span>
+        
+	
+		<!-- <font color=#1a2433>🎯置顶</font> -->
+		<!-- <span>  </span>
+		<i class="icon icon-edit"></i> -->
+		<!-- <span class="post-wordcount hidden-xs" itemprop="wordCount">字数：3.1k words</span> -->
+	
+	
+		<span>  </span>
+		<i class="icon icon-time"></i>
+		<!-- <span class="post-wordcount hidden-xs" itemprop="wordCount">字数：3.1k words,</span> -->
+
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">3.1k words, 12 mins</span>
+		<!-- <span class="post-readcount hidden-xs" itemprop="timeRequired">阅读：12 mins</span> -->
+	
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h2 id="前言">前言</h2>
+<p>在 SpringBoot 开发过程中，当我们在 Debug 我们的工程时，随便修改一段代码逻辑、修改接口路由、新增一个工具类等等情况下，都需要我们重新启动工程。反复的修改逻辑，反复的重启，这是相当痛苦的过程。当工程越来越大的时候，效率将变得特别低下，大部分的时间就是在不断的重启项目、编译包、部署包。</p>
+<p>近期在研究基于 SpringBoot + IDEA 远程调试功能，可以通过 remote-debug 方式对测试环境中的 JVM 中的代码进行调试。所谓的远程调试就是，在本地代码可以调试服务器上的代码，模拟真实环境的请求（前提是本地的代码必须和远程服务器运行的代码一致）。在这种调试环境下，只能修改少量基本的业务代码，例如新增一个函数则都无法生效。</p>
+<p>这里强力推荐 JRebel 插件，JRebel 是一款热部署插件。当项目在 Debug 的时候，修改某一个 Java文件时，JRebel 就可以解决在项目运行状态 debug 状态下任意修改 Java文件并动态反馈到运行的项目中。JRebel 有两个非常酷的特性，<strong>（一）支持热部署</strong>，<strong>（二）支持远程热部署</strong>。</p>
+<p>查阅大量资料，总算对配置非常清晰，决定详细整理以供备忘，也系统可以帮助小白更快的实现远程部署与远程调试！</p>
+<h2 id="配置环境说明">配置环境说明</h2>
+<blockquote>
+<p>这里以我的配置环境为例，进行</p>
+</blockquote>
+<ul>
+<li>
+<p>框架：SpringBoot 2.1.6</p>
+</li>
+<li>
+<p>工具：IntelliJ IDEA 2019.1.3 x64</p>
+</li>
+<li>
+<p>服务器：CentOS Linux release 7.6.1810</p>
+</li>
+<li>
+<p>JDK：Java 1.8</p>
+</li>
+<li>
+<p>JRebel</p>
+<ul>
+<li>官网：<a href="https://jrebel.com/" target="_blank" rel="noopener">JRebel, XRebel &amp; QRebel By ZeroTurnaround | JRebel.com</a></li>
+<li>文档：<a href="http://manuals.zeroturnaround.com/jrebel/index.html" target="_blank" rel="noopener">JRebel — JRebel 2019.x documentation</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="一-远程调试配置">一、远程调试配置</h2>
+<h3 id="1-右上角点击-edit-configurations-点击-号-创建-remote-应用">1. 右上角点击，Edit Configurations，点击 + 号，创建 Remote 应用</h3>
+<p><a href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563194200137.png" data-fancybox="images" data-caption="1563194200137"><img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563194200137.png" alt="1563194200137"></a></p>
+<h3 id="2-填写远程服务器信息">2. 填写远程服务器信息</h3>
+<ul>
+<li>Name：应用名</li>
+<li>Host：服务器地址</li>
+<li>Port：5005</li>
+</ul>
+<p><a href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563194304996.png" data-fancybox="images" data-caption="1563194304996"><img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563194304996.png" alt="1563194304996"></a></p>
+<h3 id="3-复制-command-line-arguments-for-remote-jvm-下的命令">3. 复制 Command line arguments for remote JVM 下的命令</h3>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005</span><br></pre></td></tr></tbody></table></figure>
+<p>说明：自此，已经获得了<strong>启动远程服务的参数</strong>，命令将在启动的时候来使用</p>
+<h3 id="4-启动服务">4. 启动服务</h3>
+<p>我们知道 SpringBoot 通过 Maven 打包后会生成 jar 包，服务端我们通过 jar -jar 的方式启动。通过上一步我们获得了服务端启动的配置参数命令，我们可以执行一下命令启动我的服务。</p>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 webapp.jar</span><br></pre></td></tr></tbody></table></figure>
+<p>我们可以用如下命令进行验证是否监听成功</p>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat -anp | grep 5005</span><br></pre></td></tr></tbody></table></figure>
+<h3 id="5-远程调试">5. 远程调试</h3>
+<p>选择我们配置的远程调试项，点击 Debug 即可进行远程调试。</p>
+<p><a href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563194804383.png" data-fancybox="images" data-caption="1563194804383"><img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563194804383.png" alt="1563194804383"></a></p>
+<p><a href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563194936470.png" data-fancybox="images" data-caption="1563194936470"><img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563194936470.png" alt="1563194936470"></a></p>
+<p>启动完成，对需要 Debug 的代码打上断点，剩下的操作步骤就是访问远程服务器对应的业务请求，本地就会同步Debug。</p>
+<p>😎 自此，可以尽情的开始远程调试工作了！</p>
+<blockquote>
+<p>但是在使用远程调试的过程中，如果进行了断点，会出现服务阻塞的情况。如何解决这样的问题，将在下面进行描述。</p>
+</blockquote>
+<h2 id="二-热部署">二、热部署</h2>
+<p>这里将引入 JRebel 插件，可以实现对本地的服务和远程的服务进行热部署。本节将主要针对本地热部署进行配置。</p>
+<h3 id="1-idea-中安装-jrebel-插件">1. IDEA 中安装 Jrebel 插件</h3>
+<p>File -&gt; Settings -&gt; Plugins -&gt; Search plugins in marketplace</p>
+<p>搜索 <code>JRebel for IntelliJ</code> 安装即可，离线安装包下载地址：<a href="https://plugins.jetbrains.com/plugin/4441-jrebel-for-intellij/" target="_blank" rel="noopener">JRebel for IntelliJ - Plugins | JetBrains</a></p>
+<p><a href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563195324070.png" data-fancybox="images" data-caption="1563195324070"><img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563195324070.png" alt="1563195324070"></a></p>
+<p>安装完成后，重启 IDEA 生效。此时在 Settings 面板中会出现 JRebel 的选项卡</p>
+<p><a href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563195374877.png" data-fancybox="images" data-caption="1563195374877"><img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563195374877.png" alt="1563195374877"></a></p>
+<h3 id="2-激活-jrebel-插件">2. 激活 JRebel 插件</h3>
+<h4 id="一-官方-active-code-方式激活-只可使用10天">（一）官方 Active Code 方式激活（只可使用10天）</h4>
+<ol>
+<li>进入官网 <a href="https://jrebel.com/software/jrebel/trial/" target="_blank" rel="noopener">Evaluate JRebel</a>，填写完整信息</li>
+</ol>
+<p><a href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563195929214.png" data-fancybox="images" data-caption="1563195929214"><img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563195929214.png" alt="1563195929214"></a></p>
+<ol start="2">
+<li>点击 Register 获取激活码</li>
+</ol>
+<p><a href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563195961612.png" data-fancybox="images" data-caption="1563195961612"><img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563195961612.png" alt="1563195961612"></a></p>
+<p>此时即可获取你的激活码，复制保存到本地，后续将会用到。</p>
+<ol start="3">
+<li>JRebel 插件激活</li>
+</ol>
+<p>点击 help -&gt; JRebel -&gt; Activaction -&gt; Activation code，将我们网页上获取到的 <code>Activation code</code> 粘贴后，点击 <code>Activate JRebel</code> 即可激活。</p>
+<p><a href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563196093481.png" data-fancybox="images" data-caption="1563196093481"><img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563196093481.png" alt="1563196093481"></a></p>
+<p>激活成功后在 JRebel 配置面板中，会显示 VALID 标志，即说明激活成功了。</p>
+<p><a href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563196236960.png" data-fancybox="images" data-caption="1563196236960"><img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563196236960.png" alt="1563196236960"></a></p>
+<p>此时，你已经获取到了试用版的 JRebel 的使用权限，即可实现本地热部署的功能，可以进行第 3 步配置。（其他激活方式请参考：<a href="http://manuals.zeroturnaround.com/jrebel/standalone/activate.html#command-line-utility" target="_blank" rel="noopener">Activation — JRebel 2019.x documentation</a>，若想要永久破解，请往下阅读。）</p>
+<h4 id="二-永久和谐方式">（二）永久和谐方式</h4>
+<blockquote>
+<p>本人用户正版软件，推荐尽可能使用正版，如果想要 cracked（和谐）可以参考以下配置说明</p>
+</blockquote>
+<p>在这里我们将通过 JRebel 的 Team URL(connect to online licensing service) 方式进行和谐（cracked）。</p>
+<ol>
+<li>由于网络稳定性考虑，这里我们将搭建自己的 license server for JRebel</li>
+</ol>
+<p>具体的搭建过程可以参考 Gitee 上的这位作者的仓库配置说明：<a href="https://gitee.com/gsls200808/JrebelLicenseServerforJava/" target="_blank" rel="noopener">JrebelLicenseServerforJava: A license server for Jrebel</a>。当然同时，这里我也将提供一个打包完成的 jar 包，直接上传至服务器运行即可。</p>
+<p>JrebelBrainsLicenseServerforJava-1.0-SNAPSHOT-jar-with-dependencies</p>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 服务启动（阻塞）</span></span><br><span class="line">java -jar JrebelBrainsLicenseServerforJava-1.0-SNAPSHOT-jar-with-dependencies.jar -port 8081</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 服务启动（后台），推荐使用这种方式</span></span><br><span class="line">nohup java -jar JrebelBrainsLicenseServerforJava-1.0-SNAPSHOT-jar-with-dependencies.jar -port 8081 &amp;</span><br></pre></td></tr></tbody></table></figure>
+<p>浏览器中打开链接 <a href="http://192.168.72.131:8081/" target="_blank" rel="noopener">http://192.168.72.131:8081</a> ，出现如下界面则服务端配置成功。</p>
+<p><a href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563284703729.png" data-fancybox="images" data-caption="1563284703729"><img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563284703729.png" alt="1563284703729"></a></p>
+<blockquote>
+<p>如果是团队协作推荐搭建在一台内部都能够访问的服务器。</p>
+</blockquote>
+<p>这里我使用的 JRebel 是 <code>JRebel for IntelliJ v2019.1.4</code> 版本的，我们可以通过如下 URL 进行注册</p>
+<ul>
+<li><code>http://host:8081/{guid}</code>，其中 GUID 可以通过在线工具自己生成一个，用于区分不同的用户，而 GUID 基本上是不会出现重复的情况。<a href="http://www.ofmonkey.com/transfer/guid" target="_blank" rel="noopener">生成GUID - 程序员在线工具</a></li>
+<li>在此处，我可以通过 <code>http://192.168.72.131:8081/bc1fdd38-9be0-4251-a619-e14a4a6c21b9</code> 和 <code>任意一个邮箱</code> 进行和谐（这里我们先准备好这两个参数即可）</li>
+</ul>
+<ol start="2">
+<li>在 Team URL 中填入以上两个参数，即可实现激活</li>
+</ol>
+<p><a href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563285310324.png" data-fancybox="images" data-caption="1563285310324"><img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563285310324.png" alt="1563285310324"></a></p>
+<p><a href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563285346373.png" data-fancybox="images" data-caption="1563285346373"><img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563285346373.png" alt="1563285346373"></a></p>
+<p>在 file-&gt;settings-&gt;plugins-&gt;JRebel 中查看是否已显示激活，激活后显示 valid，图标为绿色。此时可以点击 Work offline 实现离线的验证，离线下有效期为半年时间，半年后可以重新认证即可。若是 online 则实时会往服务端进行匹配验证。推荐使用 <strong>Work offline</strong> 方式！</p>
+<p><a href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563285389975.png" data-fancybox="images" data-caption="1563285389975"><img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563285389975.png" alt="1563285389975"></a></p>
+<ol start="3">
+<li>补充：这里我们主要使用自己搭建 Server 的方式进行验证，这里也提供一些网上第三方的服务平台。在网络可达的情况下，免去搭建的烦恼。</li>
+</ol>
+<ul>
+<li><a href="https://tools.hexianwei.com/#/tools/jrebel" target="_blank" rel="noopener">beer_tools for jrebel</a></li>
+</ul>
+<p>在和谐的过程中，参考的一些资料：</p>
+<ul>
+<li><a href="https://blog.csdn.net/songfei_dream/article/details/90921505" target="_blank" rel="noopener">JRebel永久破解激活方法 - songfei_dream的专栏</a></li>
+<li><a href="https://blog.csdn.net/lzt099/article/details/77455345" target="_blank" rel="noopener">idea离线使用jrebel(亲测可用) - lzt099的博客 - CSDN博客</a></li>
+<li><a href="http://3ms.huawei.com/km/groups/961/blogs/details/6201649" target="_blank" rel="noopener">Jrebel在Idea中使用 - 鹰眼eagle-故障主动识别 - 3MS知识管理社区</a></li>
+<li><a href="https://gitee.com/gsls200808/JrebelLicenseServerforJava" target="_blank" rel="noopener">JrebelLicenseServerforJava: A license server for Jrebel &amp; JetBrains products, it also support JRebel for Android and XRebel.</a></li>
+<li><a href="http://3ms.huawei.com/hi/group/3690817/wiki_5444639.html" target="_blank" rel="noopener">IDEA+Jrebel实现热部署和远程调试 - ManageOne云服务保障 - 3ms知识管理社区</a></li>
+</ul>
+<h3 id="3-设置-idea-为自动编译">3. 设置 IDEA 为自动编译</h3>
+<ol>
+<li>由于 JRebel 是实时监控 class 文件的变化来实现热部署的，所以在 IDEA 环境下需要打开自动编译功能才能实现随时修改，随时生效。</li>
+</ol>
+<p><a href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563196516607.png" data-fancybox="images" data-caption="1563196516607"><img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563196516607.png" alt="1563196516607"></a></p>
+<ol start="2">
+<li>按住 Ctrl + Alt + Shift + / 弹出，选择 Registry 后勾选</li>
+</ol>
+<p><a href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563196625339.png" data-fancybox="images" data-caption="1563196625339"><img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563196625339.png" alt="1563196625339"></a></p>
+<p><a href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563196598708.png" data-fancybox="images" data-caption="1563196598708"><img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563196598708.png" alt="1563196598708"></a></p>
+<h3 id="4-debug-启动服务">4. Debug 启动服务</h3>
+<p>选择 SpringBoot 的入口类，右键选择 Debug with JRebel,等待启动完成即可</p>
+<p><a href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563196770320.png" data-fancybox="images" data-caption="1563196770320"><img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563196770320.png" alt="1563196770320"></a></p>
+<p><a href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563197215671.png" data-fancybox="images" data-caption="1563197215671"><img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563197215671.png" alt="1563197215671"></a></p>
+<h3 id="5-本地热部署">5. 本地热部署</h3>
+<p>此时可以修改或者增加代码，通过 Ctrl + Shift + F9 即可实现重新编译热部署。此时再也不需要每增加一个函数体、类都需要进行重启的操作，大大提升了 SpringBoot 开发调试的效率。</p>
+<p>🤩 自此，我们已经学会了本地热部署的方式，需要远程调试与热部署方式进行配合调试请往下阅读。</p>
+<h2 id="三-远程热部署">三、远程热部署</h2>
+<p>在本节，将针对远程热部署与调试进行说明，搭建一个高效的开发测试环境。</p>
+<p>配置远程热部署服务，主要步骤如下：</p>
+<ol>
+<li>在服务器安装 JRebel</li>
+<li>配置本地 JRebel</li>
+<li>在服务器用 JRebel 启动专案</li>
+<li>本地新增远端服务器进行热部署</li>
+</ol>
+<h3 id="1-配置服务器-jrebel">1. 配置服务器 JRebel</h3>
+<blockquote>
+<p>官方配置文档：<a href="http://manuals.zeroturnaround.com/jrebel/remoteserver/intellij.html#intellijremoteserver" target="_blank" rel="noopener">JRebel remote server support in IntelliJ IDEA — JRebel 2019.x documentation</a></p>
+</blockquote>
+<ol>
+<li>下载安装包，确保容器启动用户有权限访问该路径</li>
+</ol>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -O http://dl.zeroturnaround.com/jrebel-stable-nosetup.zip</span><br></pre></td></tr></tbody></table></figure>
+<ul>
+<li>由于，使用 SpringBoot 2.x，必须要下载安装最新版的 JRebel</li>
+<li>也可以通过官网地址：<a href="https://jrebel.com/software/jrebel/download/prev-releases/" target="_blank" rel="noopener">JRebel Release Archive | JRebel.com</a>，进行下载</li>
+</ul>
+<ol start="2">
+<li>下载好后可以通过 FTP/SFTP 工具上传至服务器，在 CentOS 下使用 unzip 进行解压，得到 <code>jrebel</code> 文件夹</li>
+</ol>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">unzip jrebel-stable-nosetup.zip</span><br></pre></td></tr></tbody></table></figure>
+<ol start="3">
+<li>设置密码（进入到 <code>jrebel</code> 目录）</li>
+</ol>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">java -jar jrebel.jar -set-remote-password &lt;password&gt;</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 例如，设置密码为 12341234</span></span><br><span class="line">java -jar jrebel.jar -set-remote-password 12341234</span><br></pre></td></tr></tbody></table></figure>
+<ol start="4">
+<li>激活服务端（进入到 <code>jrebel/bin</code> 目录，执行脚本）</li>
+</ol>
+<p>在激活服务端中，JRebel 也提供了 3 种激活方式，详细地址：<a href="http://manuals.zeroturnaround.com/jrebel/standalone/activate.html#command-line-activation-examples" target="_blank" rel="noopener">Activation — JRebel 2019.x documentation</a></p>
+<p>在这里我们通过 With <strong>license server URL</strong> as an argument 方式，具体脚本如下</p>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./activate.sh http://192.168.72.131:8081/bc1fdd38-9be0-4251-a619-e14a4a6c21b9 frank_lin@whu.edu.cn</span><br></pre></td></tr></tbody></table></figure>
+<p><a href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563286046514.png" data-fancybox="images" data-caption="1563286046514"><img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563286046514.png" alt="1563286046514"></a></p>
+<p>With evaluation license <strong>activation code</strong> as an argument</p>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./activate.sh &lt;activation-code&gt;</span><br></pre></td></tr></tbody></table></figure>
+<p><a href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563239243081.png" data-fancybox="images" data-caption="1563239243081"><img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563239243081.png" alt="1563239243081"></a></p>
+<h3 id="2-配置本地-jrebel">2. 配置本地 JRebel</h3>
+<ol>
+<li>Startup 初始化配置，点击确认</li>
+</ol>
+<p><a href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563239986427.png" data-fancybox="images" data-caption="1563239986427"><img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563239986427.png" alt="1563239986427"></a></p>
+<ol start="2">
+<li>JRebel Panel 窗口，将需要热部署的项目打包，生成 <code>rebel.xml</code> 和 <code>rebel-remote.xml</code>，如下图：</li>
+</ol>
+<p><a href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563240819085.png" data-fancybox="images" data-caption="1563240819085"><img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563240819085.png" alt="1563240819085"></a></p>
+<ol start="3">
+<li>通过 maven package 重新打包生成 jar 包，上传至服务器</li>
+</ol>
+<p><a href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563240728219.png" data-fancybox="images" data-caption="1563240728219"><img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563240728219.png" alt="1563240728219"></a></p>
+<ol start="4">
+<li>服务器端启动服务</li>
+</ol>
+<ul>
+<li>启动参数</li>
+</ul>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-agentpath:[/path/to/JRebel Agent] -Drebel.remoting_plugin=true</span><br></pre></td></tr></tbody></table></figure>
+<ul>
+<li>热部署启动</li>
+</ul>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 远程热部署 启动</span></span><br><span class="line">java -agentpath:/root/commom/jrebel/lib/libjrebel64.so -Drebel.remoting_plugin=true -jar webapp.jar</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 远程热部署+远程调试 启动</span></span><br><span class="line">java -agentpath:/root/commom/jrebel/lib/libjrebel64.so -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 -Drebel.remoting_plugin=true -jar webapp.jar</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">java -agentpath:/var/www/jrebel/lib/libjrebel64.so -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 -Drebel.remoting_plugin=true -jar webapp.jar -port 8083</span><br></pre></td></tr></tbody></table></figure>
+<p>详细官网配置说明：<a href="http://manuals.zeroturnaround.com/jrebel/remoteserver/serverconfiguration.html" target="_blank" rel="noopener">Server configuration — JRebel 2019.x documentation</a></p>
+<p><a href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563239798406.png" data-fancybox="images" data-caption="1563239798406"><img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563239798406.png" alt="1563239798406"></a></p>
+<p>启动日志如下，即说明启动成功</p>
+<ul>
+<li><code>Listening for transport dt_socket at address: 5005</code> 说明启动了远程调试</li>
+<li><code>JRebel started in remote server mode.</code> 说明启动了远程热部署</li>
+</ul>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Listening for transport dt_socket at address: 5005</span><br><span class="line">2019-07-16 09:15:20 JRebel:  Starting logging to file: /root/.jrebel/jrebel.log</span><br><span class="line">2019-07-16 09:15:20 JRebel:</span><br><span class="line">2019-07-16 09:15:20 JRebel:  #############################################################</span><br><span class="line">2019-07-16 09:15:20 JRebel:</span><br><span class="line">2019-07-16 09:15:20 JRebel:  JRebel Agent 2019.1.4 (201907051008)</span><br><span class="line">2019-07-16 09:15:20 JRebel:  (c) Copyright 2007-2019 Rogue Wave Software, Inc.</span><br><span class="line">2019-07-16 09:15:20 JRebel:</span><br><span class="line">2019-07-16 09:15:20 JRebel:  Over the last 1 days JRebel prevented</span><br><span class="line">2019-07-16 09:15:20 JRebel:  at least 0 redeploys/restarts saving you about 0 hours.</span><br><span class="line">2019-07-16 09:15:20 JRebel:</span><br><span class="line">2019-07-16 09:15:20 JRebel:  JRebel started in remote server mode.</span><br><span class="line">2019-07-16 09:15:20 JRebel:</span><br><span class="line">2019-07-16 09:15:20 JRebel:</span><br><span class="line">2019-07-16 09:15:20 JRebel:  #############################################################</span><br></pre></td></tr></tbody></table></figure>
+<ol start="5">
+<li>本地 JRebel -&gt; Remote Servers 添加远程服务器</li>
+</ol>
+<p><a href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563240185570.png" data-fancybox="images" data-caption="1563240185570"><img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563240185570.png" alt="1563240185570"></a></p>
+<ol start="6">
+<li>点击 Test Connection，点击 OK 确认</li>
+</ol>
+<p><a href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563240386725.png" data-fancybox="images" data-caption="1563240386725"><img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563240386725.png" alt="1563240386725"></a></p>
+<ol start="7">
+<li>此时即可点击右上角 “远程热部署” 按钮后，通过 Ctrl + Shift + F9 即可实现重新编译热远程部署</li>
+</ol>
+<p><a href="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563241396567.png" data-fancybox="images" data-caption="1563241396567"><img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/1563241396567.png" alt="1563241396567"></a></p>
+<p>可以先远程热部署后，再点击远程调试 Debug，即可实现先热部署再调试，大大加快开发效率。</p>
+<p>😄 自此，所有的配置过程都结束了！即可开始尽情享受，JRebel 远程热部署和远程调试~ 实现真正的热部署，无论是改了代码片段还是配置文件，都可以做到不用重新启动就生效！</p>
+<h2 id="todo">TODO</h2>
+<p>文档还有很多不足的地方，这是接下来会更新的部分</p>
+<ul>
+<li>[ ] 基于 Docker 远程调试与部署</li>
+<li>[ ] 远程调试，服务阻塞怎么办</li>
+</ul>
+<h2 id="参考资料">参考资料</h2>
+<ul>
+<li><a href="https://blog.csdn.net/wo541075754/article/details/75008617" target="_blank" rel="noopener">Intellij IDEA基于Springboot的远程调试 - 程序新视界 - CSDN博客</a></li>
+<li><a href="https://blog.csdn.net/duanluan/article/details/79080370" target="_blank" rel="noopener">IDEA + Spring Boot + JRebel 热部署不能自动编译的解决方案和启动的几种方式 - github.com/duanluan - CSDN博客</a></li>
+<li><a href="https://www.jiweichengzhu.com/article/33c0330308f5429faf7a1e74127c9708" target="_blank" rel="noopener">IntelliJ IDEA热部署插件JRebel免费激活图文教程（持续更新）_心得技巧_积微成著</a></li>
+<li><a href="https://www.itread01.com/content/1546463193.html" target="_blank" rel="noopener">JRebel遠端熱部署springboot教程 - IT閱讀</a></li>
+<li><a href="https://juejin.im/post/5c0fc3736fb9a049d51957a1" target="_blank" rel="noopener">微服务开发神器–JRebel 插件破解和实现本地/远程热部署教程(IntelliJ IDEA版) - 掘金</a></li>
+<li><a href="https://blog.csdn.net/qq_18748427/article/details/79853101" target="_blank" rel="noopener">JRebel远程热部署springboot教程 - whz的博客 - CSDN博客</a></li>
+</ul>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/" title="基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试" target="_blank" rel="external">http://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/frank-lam" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/avatar2.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/frank-lam" target="_blank"><span class="text-dark">Frank</span><small class="ml-1x">from zero to hero</small></a></h3>
+        <div>潜伏在黎明之前，混迹于互联网江湖。</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments"><div class="gt-container"><div class="gt-no-init"><p>未找到相关的 <a href="https://github.com/frank-lam/hexo-blog-gitalk/issues">Issues</a> 进行评论</p><p>请联系 @frank-lam 初始化创建</p><button class="gt-btn gt-btn-login"><span class="gt-btn-text">使用 GitHub 登录</span></button></div></div></section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix sticky-bottom" data-stick-bottom="" style="position: fixed; width: 709px; height: 52px; z-index: 42; top: 589px;">
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="https://www.frankfeekr.cn/2019/07/24/influxdb-tutorial-start/" title="玩转时序数据库 InfluxDB（一）初体验"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="https://www.frankfeekr.cn/2019/06/12/Linux-%E7%A3%81%E7%9B%98%E5%88%86%E5%8C%BA%E7%AE%A1%E7%90%86/" title="Linux 磁盘分区管理"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn" data-toggle="collapse" href="https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html#collapseToc" aria-expanded="true" title="文章目录" role="button">
+        <span>[&nbsp;</span><span>文章目录</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning" data-toggle="modal" data-target="#donateModal"><span>赏</span></button>
+  <!-- <div class="wave-icon wave-icon-danger btn-donate" data-toggle="modal" data-target="#donateModal">
+    <div class="wave-circle"><span class="icon"><i class="icon icon-bill"></i></span></div>
+  </div> -->
+  
+  
+  <div class="bar-right">
+    
+    <div class="share-component social-share" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"><a class="icon icon-weibo" href="http://service.weibo.com/share/share.php?url=https%3A%2F%2Fwww.frankfeekr.cn%2F2019%2F07%2F17%2Fspringboot-idea-jrebel-hotswap%2Findex.html&amp;title=%E5%9F%BA%E4%BA%8E%20SpringBoot%20%26%20IDEA%20%26%20JRebel%20%E7%8E%A9%E8%BD%AC%E8%BF%9C%E7%A8%8B%E7%83%AD%E9%83%A8%E7%BD%B2%E4%B8%8E%E8%BF%9C%E7%A8%8B%E8%B0%83%E8%AF%95%20%7C%20Frank%27s%20%E6%8A%80%E6%9C%AF%E4%B8%96%E7%95%8C&amp;pic=https%3A%2F%2Fwww.frankfeekr.cn%2Fimg%2Favatar2.jpg&amp;appkey=" target="_blank"></a><a class="icon icon-qq" href="http://connect.qq.com/widget/shareqq/index.html?url=https%3A%2F%2Fwww.frankfeekr.cn%2F2019%2F07%2F17%2Fspringboot-idea-jrebel-hotswap%2Findex.html&amp;title=%E5%9F%BA%E4%BA%8E%20SpringBoot%20%26%20IDEA%20%26%20JRebel%20%E7%8E%A9%E8%BD%AC%E8%BF%9C%E7%A8%8B%E7%83%AD%E9%83%A8%E7%BD%B2%E4%B8%8E%E8%BF%9C%E7%A8%8B%E8%B0%83%E8%AF%95%20%7C%20Frank%27s%20%E6%8A%80%E6%9C%AF%E4%B8%96%E7%95%8C&amp;source=%E5%9F%BA%E4%BA%8E%20SpringBoot%20%26%20IDEA%20%26%20JRebel%20%E7%8E%A9%E8%BD%AC%E8%BF%9C%E7%A8%8B%E7%83%AD%E9%83%A8%E7%BD%B2%E4%B8%8E%E8%BF%9C%E7%A8%8B%E8%B0%83%E8%AF%95%20%7C%20Frank%27s%20%E6%8A%80%E6%9C%AF%E4%B8%96%E7%95%8C&amp;desc=%E5%89%8D%E8%A8%80%20%E5%9C%A8%20SpringBoot%20%E5%BC%80%E5%8F%91%E8%BF%87%E7%A8%8B%E4%B8%AD%EF%BC%8C%E5%BD%93%E6%88%91%E4%BB%AC%E5%9C%A8%20Debug%20%E6%88%91%E4%BB%AC%E7%9A%84%E5%B7%A5%E7%A8%8B%E6%97%B6%EF%BC%8C%E9%9A%8F%E4%BE%BF%E4%BF%AE%E6%94%B9%E4%B8%80%E6%AE%B5%E4%BB%A3%E7%A0%81%E9%80%BB%E8%BE%91%E3%80%81%E4%BF%AE%E6%94%B9%E6%8E%A5%E5%8F%A3%E8%B7%AF%E7%94%B1%E3%80%81%E6%96%B0%E5%A2%9E%E4%B8%80%E4%B8%AA%E5%B7%A5%E5%85%B7%E7%B1%BB%E7%AD%89%E7%AD%89%E6%83%85%E5%86%B5%E4%B8%8B%EF%BC%8C%E9%83%BD%E9%9C%80%E8%A6%81%E6%88%91%E4%BB%AC%E9%87%8D%E6%96%B0%E5%90%AF%E5%8A%A8%E5%B7%A5%E7%A8%8B%E3%80%82%E5%8F%8D%E5%A4%8D%E7%9A%84%E4%BF%AE%E6%94%B9%E9%80%BB%E8%BE%91%EF%BC%8C%E5%8F%8D%E5%A4%8D%E7%9A%84%E9%87%8D%E5%90%AF%EF%BC%8C%E8%BF%99%E6%98%AF%E7%9B%B8%E5%BD%93%E7%97%9B%E8%8B%A6%E7%9A%84%E8%BF%87%E7%A8%8B%E3%80%82%E5%BD%93%E5%B7%A5%E7%A8%8B%E8%B6%8A%E6%9D%A5%E8%B6%8A%E5%A4%A7%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%8C%E6%95%88%E7%8E%87%E5%B0%86%E5%8F%98%E5%BE%97%E7%89%B9%E5%88%AB%E4%BD%8E%E4%B8%8B%EF%BC%8C%E5%A4%A7%E9%83%A8%E5%88%86%E7%9A%84%E6%97%B6%E9%97%B4%E5%B0%B1%E6%98%AF%E5%9C%A8%E4%B8%8D%E6%96%AD%E7%9A%84%E9%87%8D%E5%90%AF%E9%A1%B9%E7%9B%AE%E3%80%81%E7%BC%96%E8%AF%91%E5%8C%85%E3%80%81%E9%83%A8%E7%BD%B2%E5%8C%85%E3%80%82%20%E8%BF%91%E6%9C%9F%E5%9C%A8%E7%A0%94%E7%A9%B6%E5%9F%BA%E4%BA%8E%20SpringBoot%20%2B%20IDEA%20%E8%BF%9C%E7%A8%8B%E8%B0%83%E8%AF%95%E5%8A%9F%E8%83%BD%EF%BC%8C%E5%8F%AF%E4%BB%A5%E9%80%9A%E8%BF%87%20remote-d&amp;pics=https%3A%2F%2Fwww.frankfeekr.cn%2Fimg%2Favatar2.jpg" target="_blank"></a><a class="icon icon-wechat" href="javascript:;" tabindex="-1"><div class="wechat-qrcode"><h4>微信扫一扫：分享</h4><div class="qrcode"><img src="data:image/png;base64,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"></div><div class="help"><p>微信里点“发现”，扫一下</p><p>二维码便可将本文分享至朋友圈。</p></div></div></a><a class="icon icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fwww.frankfeekr.cn%2F2019%2F07%2F17%2Fspringboot-idea-jrebel-hotswap%2Findex.html&amp;title=%E5%9F%BA%E4%BA%8E%20SpringBoot%20%26%20IDEA%20%26%20JRebel%20%E7%8E%A9%E8%BD%AC%E8%BF%9C%E7%A8%8B%E7%83%AD%E9%83%A8%E7%BD%B2%E4%B8%8E%E8%BF%9C%E7%A8%8B%E8%B0%83%E8%AF%95%20%7C%20Frank%27s%20%E6%8A%80%E6%9C%AF%E4%B8%96%E7%95%8C&amp;description=%E5%89%8D%E8%A8%80%20%E5%9C%A8%20SpringBoot%20%E5%BC%80%E5%8F%91%E8%BF%87%E7%A8%8B%E4%B8%AD%EF%BC%8C%E5%BD%93%E6%88%91%E4%BB%AC%E5%9C%A8%20Debug%20%E6%88%91%E4%BB%AC%E7%9A%84%E5%B7%A5%E7%A8%8B%E6%97%B6%EF%BC%8C%E9%9A%8F%E4%BE%BF%E4%BF%AE%E6%94%B9%E4%B8%80%E6%AE%B5%E4%BB%A3%E7%A0%81%E9%80%BB%E8%BE%91%E3%80%81%E4%BF%AE%E6%94%B9%E6%8E%A5%E5%8F%A3%E8%B7%AF%E7%94%B1%E3%80%81%E6%96%B0%E5%A2%9E%E4%B8%80%E4%B8%AA%E5%B7%A5%E5%85%B7%E7%B1%BB%E7%AD%89%E7%AD%89%E6%83%85%E5%86%B5%E4%B8%8B%EF%BC%8C%E9%83%BD%E9%9C%80%E8%A6%81%E6%88%91%E4%BB%AC%E9%87%8D%E6%96%B0%E5%90%AF%E5%8A%A8%E5%B7%A5%E7%A8%8B%E3%80%82%E5%8F%8D%E5%A4%8D%E7%9A%84%E4%BF%AE%E6%94%B9%E9%80%BB%E8%BE%91%EF%BC%8C%E5%8F%8D%E5%A4%8D%E7%9A%84%E9%87%8D%E5%90%AF%EF%BC%8C%E8%BF%99%E6%98%AF%E7%9B%B8%E5%BD%93%E7%97%9B%E8%8B%A6%E7%9A%84%E8%BF%87%E7%A8%8B%E3%80%82%E5%BD%93%E5%B7%A5%E7%A8%8B%E8%B6%8A%E6%9D%A5%E8%B6%8A%E5%A4%A7%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%8C%E6%95%88%E7%8E%87%E5%B0%86%E5%8F%98%E5%BE%97%E7%89%B9%E5%88%AB%E4%BD%8E%E4%B8%8B%EF%BC%8C%E5%A4%A7%E9%83%A8%E5%88%86%E7%9A%84%E6%97%B6%E9%97%B4%E5%B0%B1%E6%98%AF%E5%9C%A8%E4%B8%8D%E6%96%AD%E7%9A%84%E9%87%8D%E5%90%AF%E9%A1%B9%E7%9B%AE%E3%80%81%E7%BC%96%E8%AF%91%E5%8C%85%E3%80%81%E9%83%A8%E7%BD%B2%E5%8C%85%E3%80%82%20%E8%BF%91%E6%9C%9F%E5%9C%A8%E7%A0%94%E7%A9%B6%E5%9F%BA%E4%BA%8E%20SpringBoot%20%2B%20IDEA%20%E8%BF%9C%E7%A8%8B%E8%B0%83%E8%AF%95%E5%8A%9F%E8%83%BD%EF%BC%8C%E5%8F%AF%E4%BB%A5%E9%80%9A%E8%BF%87%20remote-d&amp;caption={{SUBHEAD}}&amp;link=https%3A%2F%2Fwww.frankfeekr.cn%2F2019%2F07%2F17%2Fspringboot-idea-jrebel-hotswap%2Findex.html&amp;picture=https%3A%2F%2Fwww.frankfeekr.cn%2Fimg%2Favatar2.jpg" target="_blank"></a><a class="icon icon-twitter" href="https://twitter.com/intent/tweet?text=%E5%9F%BA%E4%BA%8E%20SpringBoot%20%26%20IDEA%20%26%20JRebel%20%E7%8E%A9%E8%BD%AC%E8%BF%9C%E7%A8%8B%E7%83%AD%E9%83%A8%E7%BD%B2%E4%B8%8E%E8%BF%9C%E7%A8%8B%E8%B0%83%E8%AF%95%20%7C%20Frank%27s%20%E6%8A%80%E6%9C%AF%E4%B8%96%E7%95%8C&amp;url=https%3A%2F%2Fwww.frankfeekr.cn%2F2019%2F07%2F17%2Fspringboot-idea-jrebel-hotswap%2Findex.html&amp;via=https%3A%2F%2Fwww.frankfeekr.cn" target="_blank"></a></div>
+    
+  </div>
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-small modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content donate">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-head">
+            <p>感谢您的支持，我会继续努力的!</p>
+          </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="alipay">
+              <div class="donate-payimg">
+                <img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/alipay.jpg" alt="扫码支持" title="扫一扫">
+              </div>
+              <p class="text-muted mv">扫码打赏，你说多少就多少</p>
+              <p class="text-grey">打开支付宝扫一扫，即可进行扫码打赏哦</p>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="wechatpay">
+              <div class="donate-payimg">
+                <img src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/wechat.jpg" alt="扫码支持" title="扫一扫">
+              </div>
+              <p class="text-muted mv">扫码打赏，你说多少就多少</p>
+              <p class="text-grey">打开微信扫一扫，即可进行扫码打赏哦</p>
+            </div>
+          </div>
+          <div class="donate-footer">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active">
+                <a href="https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html#alipay" id="alipay-tab" role="tab" data-toggle="tab" aria-controls="alipay" aria-expanded="true"><i class="icon icon-alipay"></i> 支付宝</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html#wechatpay" role="tab" id="wechatpay-tab" data-toggle="tab" aria-controls="wechatpay" aria-expanded="false"><i class="icon icon-wepay"></i> 微信支付</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope="" itemtype="http://schema.org/WPFooter">
+    
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/frank-lam" target="_blank" title="" data-toggle="tooltip" data-placement="top" data-original-title="Github"><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://weibo.com/Lam_Frank" target="_blank" title="" data-toggle="tooltip" data-placement="top" data-original-title="Weibo"><i class="icon icon-weibo"></i></a></li>
+        
+        <li><a href="https://www.zhihu.com/people/hifrank/" target="_blank" title="" data-toggle="tooltip" data-placement="top" data-original-title="Zhihu"><i class="icon icon-zhihu"></i></a></li>
+        
+        <li><a href="mailto:frank_lin@whu.edu.cn" target="_blank" title="" data-toggle="tooltip" data-placement="top" data-original-title="Email"><i class="icon icon-email"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+        
+        <div class="publishby">
+            <!-- <span id="busuanzi_container_site_pv">访问量：<span id="busuanzi_value_site_pv"></span>次</span><br/> -->
+            <!-- frank_lin@whu.edu.cn <br /> -->
+            <!-- fullstack-tutorial -->
+            <!-- <br> -->
+            <iframe style="height: 20px !important;" frameborder="0" scrolling="0" width="120px" height="20px" src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/github-btn.html">
+            </iframe><br>
+            <!-- <p id="about_51la">
+                <script type="text/javascript" src="//quote.51.la/q?id=19985869&mb=4"></script>
+            </p> -->
+            <p>
+                <span id="busuanzi_container_site_pv">总访问量 <span id="busuanzi_value_site_pv"></span> </span>
+                <br>
+                <a href="https://beian.miit.gov.cn/" target="_blank" style="border-bottom: 1px dashed #ffffffbf;">浙ICP备2021008991号</a>
+            </p>
+            <!-- Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>. -->
+        </div>
+    </div>
+    <script>
+        // setTimeout(function () {
+        //     $('#about_51la').prepend(`<span>${$('#about_51la a').text()}</span>`)
+        //     $('#about_51la a').remove()
+        // }, 1000);
+
+        do {
+            console.log("loading 51.la");
+        }
+        while (document.getElementById("about_51la").length == 1) {
+            setTimeout(function () {
+                $('#about_51la').prepend(`<span>${$('#about_51la a').text()}</span>`)
+                $('#about_51la a').remove()
+
+            }, 500);
+            // $('#about_51la').prepend(`<span>${$('#about_51la a').text()}</span>`)
+            // $('#about_51la a').remove()
+        }
+        // while ($('#about_51la').length == 1) {
+
+        // }
+
+        // setTimeout(function(){
+        //     console.log($('#about_51la').length);
+        //     if($('#about_51la p')){
+        //         alert("exist");
+        //     }
+        //     else{
+        //         alert("not exist");
+        //     }
+        //     console.log($('#about_51la span'));
+        //     $('#about_51la').prepend(`<span>${$('#about_51la a').text()}</span>`)
+        //     $('#about_51la a').remove()
+        //  }, 2000);
+
+    </script>
+</footer>
+  <script src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/plugin.min.js"></script>
+<script src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/application.js"></script>
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: 'https://cdn.jsdelivr.net/gh/frank-lam/hexo-blog-site/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/insight.js"></script><div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech="">
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"><section class="ins-section"><header class="ins-section-header">文章</header><div class="ins-selectable ins-search-item" data-url="/2021/10/23/nvm-node-manager/"><header><i class="icon icon-file"></i>手把手教你，使用 nvm 管理不同版本的 node</header><p class="ins-search-preview">本文已 Centos7 为例 通过 Git 下载 nvm 1git clone git://github.com/creationix/nvm.git ~/nvm 下载完成后加入系统环境 12echo "source ~/nvm/nvm.sh" &amp;gt;&amp;gt; ~/.bashrcsource ~/</p></div><div class="ins-selectable ins-search-item" data-url="/2021/10/23/spring-integration-shedlock/"><header><i class="icon icon-file"></i>Spring 快速集成分布式定时器</header><p class="ins-search-preview">前言 在业务生产中，定时器 Scheduler 的使用频率非常高。Spring 也为我们提供了默认的定时器。只需要加上 @Scheduled 和 @EnableScheduling 两个注解，即可快速运行。在单实例的服务中，官方的提供的定时任务可以非常方便的使用。 但是在如今分布式多实例的环境中，使</p></div><div class="ins-selectable ins-search-item" data-url="/2021/09/25/java-regular-group/"><header><i class="icon icon-file"></i>Java 正则表达式的命名捕获组</header><p class="ins-search-preview">一、正则分组查询 1. 普通捕获组 从正则表达式左侧开始，每出现一个左括号 “(” 记做一个分组，分组编号从 1 开始。0 代表整个表达式。 123456789public static void main(String[] args) &amp;#123; String text = "2021-12-3</p></div><div class="ins-selectable ins-search-item" data-url="/2021/05/16/docs-tutorial/"><header><i class="icon icon-file"></i>开发者如何编写优雅的技术文档 —— 手把手教你编写极致的文档</header><p class="ins-search-preview">前言 作为一名程序员，日常大部分的时间主要在埋头编码、调试。但在技术的世界里，不止有代码，如果仅仅只会编写程序是不够的。当你需要展示你的想法、技术分享、架构设计，这时候好的技术文档变的至关重要。 文档伴随开发者的日常工作，例如：开源软件官方文档、第三方平台文档、系统设计文档等等，好的技术文档让人赏心</p></div><div class="ins-selectable ins-search-item" data-url="/2021/03/28/github-speed-up/"><header><i class="icon icon-file"></i>一行命令实现 Github 国内镜像加速</header><p class="ins-search-preview">请注意：该方法只使用于 https 协议，不适用于 SSH 协议！ 一、加速镜像 克隆加速 1234567891011# 原地址git clone https://github.com/kubernetes/kubernetes.git# 改为（推荐）git clone https://github</p></div></section><section class="ins-section"><header class="ins-section-header">页面</header><div class="ins-selectable ins-search-item" data-url="/404.html"><header><i class="icon icon-file"></i>(未命名)</header></div><div class="ins-selectable ins-search-item" data-url="/about/index.html"><header><i class="icon icon-file"></i>留言</header><p class="ins-search-preview">光有好奇心而不去实践，等于自动放弃成功的机会 别为自己画地自限 Look for less, do more! 如果有特别的话想对我说，欢迎给我留言哦~ 😘</p></div><div class="ins-selectable ins-search-item" data-url="/archive/index.html"><header><i class="icon icon-file"></i>Archives</header></div><div class="ins-selectable ins-search-item" data-url="/assets/config.json"><header><i class="icon icon-file"></i>(未命名)</header><p class="ins-search-preview">{"log":{"loglevel":"warning"},"inbound":{"listen":"127.0.0.1","port":1026,"protocol":"socks","settings":{"auth":"noauth","udp":true,"ip":"127.0.0.1"}}</p></div><div class="ins-selectable ins-search-item" data-url="/author/index.html"><header><i class="icon icon-file"></i>作者</header><p class="ins-search-preview">a { color: #2196f3; } p { line-height: 30px; } img{ margin-bottom:2px; } 我就是我 珞珈 CS 硕，师从全世界最好的大学(@马老师) &amp;amp; 全球最好的大学(@雷布斯) 被代码耽误的摄影师。如果你的照片不够好，那是因为你靠得</p></div></section><section class="ins-section"><header class="ins-section-header">标签</header><div class="ins-selectable ins-search-item" data-url="http://www.frankfeekr.cn/tags/IDEA/"><header><i class="icon icon-tag"></i>IDEA<span class="ins-slug">IDEA</span></header></div><div class="ins-selectable ins-search-item" data-url="http://www.frankfeekr.cn/tags/Linux/"><header><i class="icon icon-tag"></i>Linux<span class="ins-slug">Linux</span></header></div><div class="ins-selectable ins-search-item" data-url="http://www.frankfeekr.cn/tags/influxdb/"><header><i class="icon icon-tag"></i>influxdb<span class="ins-slug">influxdb</span></header></div><div class="ins-selectable ins-search-item" data-url="http://www.frankfeekr.cn/tags/技术世界/"><header><i class="icon icon-tag"></i>技术世界<span class="ins-slug">技术世界</span></header></div><div class="ins-selectable ins-search-item" data-url="http://www.frankfeekr.cn/tags/学习宝典/"><header><i class="icon icon-tag"></i>学习宝典<span class="ins-slug">学习宝典</span></header></div></section></div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+   
+<script async="" src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/busuanzi.pure.mini.js"></script>
+<!-- <script async src="https://cdn.jsdelivr.net/gh/frank-lam/hexo-blog-site/js/busuanzi.pure.mini.js"></script> -->
+
+
+
+
+
+   
+    
+  <!-- <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"> -->
+  <!-- <script src="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.js"></script> -->
+  <script src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/gitalk.min.js"></script>
+  <script src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/md5.min.js"></script>
+  <script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: '321c793b57e48017d3d6',
+    clientSecret: '525a416540a4b84efca2e7cdf218edddcd7c2b00',
+    repo: 'hexo-blog-gitalk',
+    owner: 'frank-lam',
+    admin: ['frank-lam'],
+    id: md5(location.pathname),
+    distractionFreeMode: true
+  })
+  gitalk.render('comments')
+  </script>
+
+      
+
+
+
+  <script src="./基于 SpringBoot &amp; IDEA &amp; JRebel 玩转远程热部署与远程调试 _ Frank&#39;s 技术世界_files/jquery.fancybox.min.js"></script>
+  <script>
+  //利用 FancyBox 实现点击图片放大
+  $(document).ready(function() {
+    $('article img').not('[hidden]').not('.panel-body img').each(function() {
+      var $image = $(this);
+      if ($(this).hasClass('nofancybox')) return;
+      var imageCaption = $image.attr('alt');
+      var $imageWrapLink = $image.parent('a');
+      if ($imageWrapLink.length < 1) {
+        var src = this.getAttribute('src');
+        var idx = src.lastIndexOf('?');
+        if (idx != -1) {
+          src = src.substring(0, idx);
+        }
+        $imageWrapLink = $image.wrap('<a href="' + src + '"></a>').parent('a');
+      }
+      $imageWrapLink.attr('data-fancybox', 'images');
+      if (imageCaption) {
+        $imageWrapLink.attr('data-caption', imageCaption);
+      }
+    });
+    $().fancybox({
+      selector: '[data-fancybox="images"]',
+      hash: false,
+      loop: false,
+    });
+  });
+  </script>
+
+
+
+
+
+
+
+                <div id="cf_notif_div_izj1nl07zu" class="cf_div_position_south light_body cf_div_theme_dark">
+                    <div id="all_notification_actions" style="display: none;">
+                        <a href="https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html#" class="all_notification_action_button" title="Clear all notifications" id="clear_all"><img src="chrome-extension://iipjdmnoigaobkamfhnojmglcdbnfaaf/img/ic_clear_all.svg"></a>
+                        <a href="https://www.frankfeekr.cn/2019/07/17/springboot-idea-jrebel-hotswap/index.html#" class="all_notification_action_button" title="Notification settings" id="open_settings"><img src="chrome-extension://iipjdmnoigaobkamfhnojmglcdbnfaaf/img/ic_settings_20px.svg"></a>
+                    </div>
+                </div></body><div style="all: initial;"><div id="__hcfy__" style="all: initial;"></div></div></html>
